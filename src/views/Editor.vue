@@ -47,16 +47,17 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, computed } from 'vue'
-import { useStore } from 'vuex'
-// import { GlobalDataProps } from '../store/index'
-import LText from '../components/LText.vue'
-import LImage from '../components/LImage.vue'
-import ComponentsList from '../components/ComponentsList.vue'
-import EditWrapper from '../components/EditWrapper.vue'
-import PropsTable from '../components/PropsTable.vue'
-// import { ComponentData } from '../store/editor'
-import { defaultTextTemplates } from '../defaultTemplates'
+import { defineComponent, computed } from "vue"
+import { useStore } from "vuex"
+import { GlobalDataProps } from "../store/index"
+import LText from "../components/LText.vue"
+import LImage from "../components/LImage.vue"
+import ComponentsList from "../components/ComponentsList.vue"
+import EditWrapper from "../components/EditWrapper.vue"
+import PropsTable from "../components/PropsTable.vue"
+// import PropsTable from '../components/PropsTable'
+import { ComponentData } from "../store/editor"
+import { defaultTextTemplates } from "../defaultTemplates"
 export default defineComponent({
   components: {
     LText,
@@ -66,20 +67,20 @@ export default defineComponent({
     PropsTable,
   },
   setup() {
-    // const store = useStore<GlobalDataProps>()
-    const store = useStore()
+    const store = useStore<GlobalDataProps>()
     const components = computed(() => store.state.editor.components)
-    // const currentElement = computed<ComponentData | null>(() => store.getters.getCurrentElement)
-    const currentElement = computed<null>(() => store.getters.getCurrentElement)
+    const currentElement = computed<ComponentData | null>(
+      () => store.getters.getCurrentElement
+    )
     const addItem = (component: any) => {
-      store.commit('addComponent', component)
+      store.commit("addComponent", component)
     }
     const setActive = (id: string) => {
-      store.commit('setActive', id)
+      store.commit("setActive", id)
     }
     const handleChange = (e: any) => {
-      console.log('event', e)
-      store.commit('updateComponent', e)
+      console.log("event", e)
+      store.commit("updateComponent", e)
     }
     return {
       components,

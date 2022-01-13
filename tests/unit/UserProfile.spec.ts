@@ -65,7 +65,7 @@ describe('UserProfile component', () => {
         userName: 'ronnie',
       },
     })
-    console.log(wrapper.html())
+    // console.log(wrapper.html())
     expect(wrapper.get('.user-profile-component').html()).toContain('ronnie')
     expect(wrapper.find('.user-profile-dropdown').exists()).toBeTruthy()
   })

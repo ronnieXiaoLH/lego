@@ -72,7 +72,7 @@ export default defineComponent({
     const currentElement = computed<ComponentData | null>(
       () => store.getters.getCurrentElement
     )
-    const addItem = (component: any) => {
+    const addItem = (component: ComponentData) => {
       store.commit('addComponent', component)
     }
     const setActive = (id: string) => {

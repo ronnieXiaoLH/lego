@@ -26,26 +26,26 @@
 </template>
 
 <script lang="ts">
-import { reduce } from "lodash"
-import { computed, defineComponent, PropType, VNode } from "vue"
-import { TextComponentProps } from "@/defaultProps"
-import { mapPropsToForms } from "@/propsMap"
-import RenderVnode from "../components/renderVnode"
+import { reduce } from 'lodash'
+import { computed, defineComponent, PropType, VNode } from 'vue'
+import { TextComponentProps } from '@/defaultProps'
+import { mapPropsToForms } from '@/propsMap'
+import RenderVnode from '../components/renderVnode'
 
 interface FormProps {
-  component: string;
-  subComponent?: string;
-  value: string;
-  extraProps?: { [key: string]: any };
-  text?: string;
-  options?: { text: string | VNode; value: any }[];
-  valueProp?: string;
-  eventName: string;
-  events: { [key: string]: (e: any) => void };
+  component: string
+  subComponent?: string
+  value: string
+  extraProps?: { [key: string]: any }
+  text?: string
+  options?: { text: string | VNode; value: any }[]
+  valueProp?: string
+  eventName: string
+  events: { [key: string]: (e: any) => void }
 }
 
 export default defineComponent({
-  name: "props-table",
+  name: 'props-table',
   components: {
     RenderVnode,
   },
@@ -55,7 +55,7 @@ export default defineComponent({
       required: true,
     },
   },
-  emits: ["change"],
+  emits: ['change'],
   setup(props, context) {
     const finalProps = computed(() => {
       return reduce(
@@ -65,8 +65,8 @@ export default defineComponent({
           const item = mapPropsToForms[newKey]
           if (item) {
             const {
-              valueProp = "value",
-              eventName = "change",
+              valueProp = 'value',
+              eventName = 'change',
               initalTransform,
               afterTransform,
             } = item
@@ -77,7 +77,7 @@ export default defineComponent({
               eventName,
               events: {
                 [eventName]: (e: any) => {
-                  context.emit("change", {
+                  context.emit('change', {
                     key,
                     value: afterTransform ? afterTransform(e) : e,
                   })

@@ -13,15 +13,15 @@ const router = createRouter({
       component: Index,
       children: [
         { path: '', name: 'home', component: Home },
-        { path: 'template/:id', name: 'template', component: TemplateDetail }
-      ]
+        { path: 'template/:id', name: 'template', component: TemplateDetail },
+      ],
     },
     {
       path: '/editor',
       name: 'editor',
-      component: Editor
-    }
-  ]
+      component: Editor,
+    },
+  ],
 })
 
 export default router

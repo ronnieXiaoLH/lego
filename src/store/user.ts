@@ -2,8 +2,8 @@ import { Module } from 'vuex'
 import { GlobalDataProps } from './index'
 
 export interface UserProps {
-  isLogin: boolean;
-  userName?: string;
+  isLogin: boolean
+  userName?: string
 }
 
 const user: Module<UserProps, GlobalDataProps> = {
@@ -14,8 +14,8 @@ const user: Module<UserProps, GlobalDataProps> = {
     },
     logout(state) {
       state.isLogin = false
-    }
-  }
+    },
+  },
 }
 
 export default user

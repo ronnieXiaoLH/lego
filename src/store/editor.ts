@@ -1,59 +1,59 @@
-import { Module } from "vuex"
-import { v4 as uuidv4 } from "uuid"
-import { GlobalDataProps } from "./index"
-import { TextComponentProps } from "@/defaultProps"
+import { Module } from 'vuex'
+import { v4 as uuidv4 } from 'uuid'
+import { GlobalDataProps } from './index'
+import { TextComponentProps } from '@/defaultProps'
 
 export interface EditorProps {
   // 中间编辑器渲染的数组
-  components: ComponentData[];
+  components: ComponentData[]
   // 当前编辑的是哪个元素 uuid
-  currentElement: string;
+  currentElement: string
 }
 
 export interface ComponentData {
-  props: { [key: string]: any };
+  props: { [key: string]: any }
   // 组件 id, uuid v4 生成
-  id: string;
+  id: string
   // 组件库的名称
-  name: string;
+  name: string
 }
 
 export const testComponents: ComponentData[] = [
   {
     id: uuidv4(),
-    name: "l-text",
+    name: 'l-text',
     props: {
-      text: "hello",
-      fontSize: "20px",
-      color: "#000000",
-      lineHeight: "1",
-      textAlign: "left",
-      fontFamily: "",
+      text: 'hello',
+      fontSize: '20px',
+      color: '#000000',
+      lineHeight: '1',
+      textAlign: 'left',
+      fontFamily: '',
     },
   },
   {
     id: uuidv4(),
-    name: "l-text",
+    name: 'l-text',
     props: {
-      text: "hello2",
-      fontSize: "10px",
-      fontWeight: "bold",
-      lineHeight: "2",
-      textAlign: "left",
-      fontFamily: "",
+      text: 'hello2',
+      fontSize: '10px',
+      fontWeight: 'bold',
+      lineHeight: '2',
+      textAlign: 'left',
+      fontFamily: '',
     },
   },
   {
     id: uuidv4(),
-    name: "l-text",
+    name: 'l-text',
     props: {
-      text: "hello3",
-      fontSize: "15px",
-      actionType: "url",
-      url: "https://www.baidu.com",
-      lineHeight: "3",
-      textAlign: "left",
-      fontFamily: "",
+      text: 'hello3',
+      fontSize: '15px',
+      actionType: 'url',
+      url: 'https://www.baidu.com',
+      lineHeight: '3',
+      textAlign: 'left',
+      fontFamily: '',
     },
   },
 ]
@@ -61,13 +61,13 @@ export const testComponents: ComponentData[] = [
 const editor: Module<EditorProps, GlobalDataProps> = {
   state: {
     components: testComponents,
-    currentElement: "",
+    currentElement: '',
   },
   mutations: {
     addComponent(state, props: Partial<TextComponentProps>) {
       const newComponent: ComponentData = {
         id: uuidv4(),
-        name: "l-text",
+        name: 'l-text',
         props,
       }
       state.components.push(newComponent)

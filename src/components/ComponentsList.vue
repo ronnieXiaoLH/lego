@@ -21,6 +21,7 @@ import { message } from 'ant-design-vue'
 import { ComponentData } from '@/store/editor'
 import { v4 as uuidv4 } from 'uuid'
 import { imageDefaultProps, TextComponentProps } from '@/defaultProps'
+// import { imageDefaultProps, TextComponentProps } from 'xlh-lego-components'
 import { getImageDimensions } from '@/helper'
 export default defineComponent({
   name: 'components-list',
@@ -55,15 +56,15 @@ export default defineComponent({
           ...imageDefaultProps,
         },
       }
-      // 调用的是 imooc 的 api 会上传失败
-      // componentData.props.src = resp.data.url
 
-      // 所以自己生成一个 base64 的地址
-      const fileReader = new FileReader()
-      fileReader.readAsDataURL(file)
-      fileReader.addEventListener('load', () => {
-        componentData.props.src = fileReader.result as string
-      })
+      componentData.props.src = resp?.data?.urls[0]
+
+      // 如果调用的接口失败(没有上传接口)，就自己生成一个 base64 的地址
+      // const fileReader = new FileReader()
+      // fileReader.readAsDataURL(file)
+      // fileReader.addEventListener('load', () => {
+      //   componentData.props.src = fileReader.result as string
+      // })
 
       message.success('上传成功')
       getImageDimensions(file).then(({ width }) => {

@@ -1,7 +1,7 @@
 <template>
   <uploader
     class="styled-uploader"
-    action="imooc/upload-img"
+    action="http://127.0.0.1:3000/api/utils/upload-img"
     :showUploadList="false"
     :beforeUpload="commonUploadCheck"
     @success="

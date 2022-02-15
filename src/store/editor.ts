@@ -16,12 +16,19 @@ export interface ComponentData {
   id: string
   // 组件库的名称
   name: string
+  // 图层是否隐藏
+  isHidden?: boolean
+  // 图层是否锁定
+  isLocked?: boolean
+  // 图层名称
+  layerName?: string
 }
 
 export const testComponents: ComponentData[] = [
   {
     id: uuidv4(),
     name: 'l-text',
+    layerName: '图层1',
     props: {
       text: 'hello',
       fontSize: '20px',
@@ -34,6 +41,7 @@ export const testComponents: ComponentData[] = [
   {
     id: uuidv4(),
     name: 'l-text',
+    layerName: '图层2',
     props: {
       text: 'hello2',
       fontSize: '10px',
@@ -46,6 +54,7 @@ export const testComponents: ComponentData[] = [
   {
     id: uuidv4(),
     name: 'l-text',
+    layerName: '图层3',
     props: {
       text: 'hello3',
       fontSize: '15px',
@@ -70,12 +79,17 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     setActive(state, currentId: string) {
       state.currentElement = currentId
     },
-    updateComponent(state, { key, value }) {
+    updateComponent(state, { key, value, id, isRoot }) {
       const updatedComponent = state.components.find(
-        (component) => component.id === state.currentElement
+        (component) => component.id === (id || state.currentElement)
       )
       if (updatedComponent) {
-        updatedComponent.props[key as keyof TextComponentProps] = value
+        if (isRoot) {
+          // eslint-disable-next-line
+          ;(updatedComponent as any)[key] = value
+        } else {
+          updatedComponent.props[key as keyof TextComponentProps] = value
+        }
       }
     },
   },

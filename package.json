@@ -12,6 +12,7 @@
     "@types/lodash-es": "^4.17.5",
     "@types/uuid": "^8.3.4",
     "ant-design-vue": "^2.2.8",
+    "array-move": "^4.0.0",
     "axios": "^0.24.0",
     "core-js": "^3.6.5",
     "cropperjs": "^1.5.12",
@@ -19,6 +20,7 @@
     "rgb-hex": "^4.0.0",
     "uuid": "^8.3.2",
     "vue": "^3.0.0",
+    "vue-draggable-next": "^2.1.1",
     "vue-router": "^4.0.12",
     "vuex": "^4.0.2",
     "xlh-lego-components": "^1.0.3"

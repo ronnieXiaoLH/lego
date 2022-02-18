@@ -1,7 +1,11 @@
 import { Module } from 'vuex'
 import { v4 as uuidv4 } from 'uuid'
 import { GlobalDataProps } from './index'
-import { ImageComponentProps, TextComponentProps } from '@/defaultProps'
+import {
+  ImageComponentProps,
+  TextComponentProps,
+  textDefaultProps,
+} from '@/defaultProps'
 
 export interface EditorProps {
   // 中间编辑器渲染的数组
@@ -30,6 +34,7 @@ export const testComponents: ComponentData[] = [
     name: 'l-text',
     layerName: '图层1',
     props: {
+      ...textDefaultProps,
       text: 'hello',
       fontSize: '20px',
       color: '#000000',
@@ -43,6 +48,7 @@ export const testComponents: ComponentData[] = [
     name: 'l-text',
     layerName: '图层2',
     props: {
+      ...textDefaultProps,
       text: 'hello2',
       fontSize: '10px',
       fontWeight: 'bold',
@@ -56,6 +62,7 @@ export const testComponents: ComponentData[] = [
     name: 'l-text',
     layerName: '图层3',
     props: {
+      ...textDefaultProps,
       text: 'hello3',
       fontSize: '15px',
       actionType: 'url',

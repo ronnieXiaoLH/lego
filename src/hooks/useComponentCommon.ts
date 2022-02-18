@@ -9,7 +9,8 @@ const useComponentCommon = (
   const styleProps = computed(() => pick(props, picks))
   const handleClick = () => {
     if (props.actionType === 'url' && props.url && !props.isEditing) {
-      window.location.href = props.url
+      console.log('props', props)
+      // window.location.href = props.url
     }
   }
 

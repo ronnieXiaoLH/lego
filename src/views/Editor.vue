@@ -35,14 +35,11 @@
         <a-tabs type="card" v-model:activeKey="activePanel">
           <a-tab-pane key="component" tab="属性设置" class="no-tap-radius">
             <div v-if="currentElement && currentElement.props">
-              <props-table
+              <edit-group
                 v-if="!currentElement.isLocked"
                 :props="currentElement.props"
                 @change="handleChange"
-              ></props-table>
-              <pre v-if="!currentElement.isLocked">
-                {{ currentElement && currentElement.props }}
-              </pre>
+              ></edit-group>
               <div v-else>
                 <a-empty>
                   <template #description>
@@ -74,8 +71,9 @@ import LText from '../components/LText.vue'
 import LImage from '../components/LImage.vue'
 import ComponentsList from '../components/ComponentsList.vue'
 import EditWrapper from '../components/EditWrapper.vue'
-import PropsTable from '../components/PropsTable.vue'
+// import PropsTable from '../components/PropsTable.vue'
 // import PropsTable from '../components/PropsTable'
+import EditGroup from '../components/EditGroup.vue'
 import LayerList from '../components/LayerList.vue'
 import { ComponentData } from '../store/editor'
 import { defaultTextTemplates } from '../defaultTemplates'
@@ -88,7 +86,8 @@ export default defineComponent({
     LImage,
     ComponentsList,
     EditWrapper,
-    PropsTable,
+    // PropsTable,
+    EditGroup,
     LayerList,
   },
   setup() {

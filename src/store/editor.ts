@@ -2,6 +2,7 @@ import { Module } from 'vuex'
 import { v4 as uuidv4 } from 'uuid'
 import { GlobalDataProps } from './index'
 import {
+  AllComponentProps,
   ImageComponentProps,
   TextComponentProps,
   textDefaultProps,
@@ -12,6 +13,22 @@ export interface EditorProps {
   components: ComponentData[]
   // 当前编辑的是哪个元素 uuid
   currentElement: string
+  page: PageData
+}
+
+export interface PageProps {
+  backgroundColor: string
+  backgroundImage: string
+  backgroundRepeat: string
+  backgroundSize: string
+  height: string
+}
+
+export type allFormProps = PageProps & AllComponentProps
+
+export interface PageData {
+  props: PageProps
+  title: string
 }
 
 export interface ComponentData {
@@ -74,10 +91,22 @@ export const testComponents: ComponentData[] = [
   },
 ]
 
+const pageDefaultProps = {
+  backgroundColor: '#ffffff',
+  backgroundImage: '',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: 'cover',
+  height: '560px',
+}
+
 const editor: Module<EditorProps, GlobalDataProps> = {
   state: {
     components: testComponents,
     currentElement: '',
+    page: {
+      props: pageDefaultProps,
+      title: 'test title',
+    },
   },
   mutations: {
     addComponent(state, componentData: ComponentData) {
@@ -98,6 +127,9 @@ const editor: Module<EditorProps, GlobalDataProps> = {
           updatedComponent.props[key as keyof TextComponentProps] = value
         }
       }
+    },
+    updatePage(state, { key, value }) {
+      state.page.props[key as keyof PageProps] = value
     },
   },
   getters: {

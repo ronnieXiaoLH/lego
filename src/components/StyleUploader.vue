@@ -34,6 +34,7 @@ import { defineComponent } from 'vue'
 import { FileImageOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { commonUploadCheck } from '../helper'
 import Uploader from './Uploader.vue'
+import { UploadResp } from '@/extraType'
 export default defineComponent({
   components: {
     Uploader,
@@ -42,7 +43,7 @@ export default defineComponent({
   },
   emits: ['success'],
   setup(props, { emit }) {
-    const handleUploadSuccess = (resp: any, file: File) => {
+    const handleUploadSuccess = (resp: UploadResp, file: File) => {
       emit('success', { resp, file })
     }
     return {

@@ -27,6 +27,9 @@
       <a-button @click="showModal = true">
         <template v-slot:icon><ScissorOutlined /></template>裁剪图片
       </a-button>
+      <a-button v-if="showDelete" type="danger" @click="handleDelete">
+        <template v-slot:icon><DeleteOutlined /></template>删除图片
+      </a-button>
     </div>
   </div>
 </template>
@@ -55,12 +58,16 @@ export default defineComponent({
     UploadOutlined,
     ScissorOutlined,
     LoadingOutlined, // eslint-disable-line
-    DeleteOutlined, // eslint-disable-line
+    DeleteOutlined,
   },
   props: {
     value: {
       type: String,
       required: true,
+    },
+    showDelete: {
+      type: Boolean,
+      default: false,
     },
   },
   emits: ['change', 'uploaded'],
@@ -128,12 +135,17 @@ export default defineComponent({
       showModal.value = false
     }
 
+    const handleDelete = () => {
+      context.emit('change', '')
+    }
+
     return {
       showModal,
       baseImageUrl,
       backgroundUrl,
       cropperImg,
       handleOk,
+      handleDelete,
     }
   },
 })

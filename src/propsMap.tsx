@@ -1,5 +1,5 @@
 import { VNode } from "vue"
-import { AllComponentProps } from "./defaultProps"
+import { allFormProps } from "./store/editor"
 
 export interface PropToForm {
   component: string;
@@ -15,11 +15,11 @@ export interface PropToForm {
   // 该属性有可能和其他联动，由该父属性控制它的行为
   parent?: string;
   // 可能还要向外传递更多的事件
-  evtraEvent?: string
+  extraEvent?: string
 }
 
 export type PropsToForms = {
-  [P in keyof AllComponentProps]?: PropToForm
+  [P in keyof allFormProps]?: PropToForm
 }
 
 const defaultMap = {
@@ -245,46 +245,46 @@ export const mapPropsToForms: PropsToForms = {
     ...defaultMap,
     component: 'image-processer'
   },
-  // backgroundImage: {
-  //   ...defaultMap,
-  //   component: 'background-processer',
-  //   initalTransform: (v: string) => {
-  //     if (v) {
-  //       const matches = v.match(/\((.*?)\)/)
-  //       if (matches && matches.length > 1) {
-  //         return matches[1].replace(/('|")/g, '')
-  //       } else {
-  //         return ''
-  //       }
-  //     } else {
-  //       return ''
-  //     }
-  //   },
-  //   afterTransform: (e: string) => e ? `url('${e}')` : '',
-  //   extraProps: { ratio: 8 / 15, showDelete: true },
-  //   extraEvent: 'uploaded'
-  // },
-  // backgroundSize: {
-  //   ...defaultMap,
-  //   component: 'a-select',
-  //   subComponent: 'a-select-option',
-  //   text: '背景大小',
-  //   options: [
-  //     { value: 'contain', text: '自动缩放' },
-  //     { value: 'cover', text: '自动填充' },
-  //     { value: '', text: '默认' }
-  //   ]
-  // },
-  // backgroundRepeat: {
-  //   ...defaultMap,
-  //   component: 'a-select',
-  //   subComponent: 'a-select-option',
-  //   text: '背景重复',
-  //   options: [
-  //     { value: 'no-repeat', text: '无重复' },
-  //     { value: 'repeat-x', text: 'X轴重复' },
-  //     { value: 'repeat-y', text: 'Y轴重复' },
-  //     { value: 'repeat', text: '全部重复' }
-  //   ]
-  // }
+  backgroundImage: {
+    ...defaultMap,
+    component: 'background-processer',
+    initalTransform: (v: string) => {
+      if (v) {
+        const matches = v.match(/\((.*?)\)/)
+        if (matches && matches.length > 1) {
+          return matches[1].replace(/('|")/g, '')
+        } else {
+          return ''
+        }
+      } else {
+        return ''
+      }
+    },
+    afterTransform: (e: string) => e ? `url('${e}')` : '',
+    extraProps: { ratio: 8 / 15, showDelete: true },
+    extraEvent: 'uploaded'
+  },
+  backgroundSize: {
+    ...defaultMap,
+    component: 'a-select',
+    subComponent: 'a-select-option',
+    text: '背景大小',
+    options: [
+      { value: 'contain', text: '自动缩放' },
+      { value: 'cover', text: '自动填充' },
+      { value: '', text: '默认' }
+    ]
+  },
+  backgroundRepeat: {
+    ...defaultMap,
+    component: 'a-select',
+    subComponent: 'a-select-option',
+    text: '背景重复',
+    options: [
+      { value: 'no-repeat', text: '无重复' },
+      { value: 'repeat-x', text: 'X轴重复' },
+      { value: 'repeat-y', text: 'Y轴重复' },
+      { value: 'repeat', text: '全部重复' }
+    ]
+  }
 }

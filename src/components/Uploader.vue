@@ -59,6 +59,7 @@ import {
 import axios from 'axios'
 import { v4 as uuidv4 } from 'uuid'
 import { last } from 'lodash-es'
+import { UploadResp } from '@/extraType'
 type UploadStaus = 'ready' | 'loading' | 'success' | 'error'
 type FileListType = 'picture' | 'text'
 type CheckUpload = (file: File) => boolean | Promise<File>
@@ -68,7 +69,7 @@ export interface UploadFile {
   name: string
   status: UploadStaus
   raw: File
-  resp?: any
+  resp?: UploadResp
   url?: string
 }
 export default defineComponent({

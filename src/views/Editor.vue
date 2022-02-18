@@ -13,7 +13,7 @@
       <a-layout style="padding: 0 24px 24px">
         <a-layout-content class="preview-container">
           <p>画布区域</p>
-          <div class="preview-list" id="canvas-area">
+          <div class="preview-list" id="canvas-area" :style="pageState.props">
             <div v-for="component in components" :key="component.id">
               <edit-wrapper
                 v-if="!component.isHidden"
@@ -21,7 +21,11 @@
                 :id="component.id"
                 :active="component.id === (currentElement && currentElement.id)"
               >
-                <component :is="component.name" v-bind="component.props" />
+                <component
+                  :is="component.name"
+                  v-bind="component.props"
+                  :isEditing="true"
+                />
               </edit-wrapper>
             </div>
           </div>
@@ -57,6 +61,12 @@
               @select="setActive"
             ></layer-list>
           </a-tab-pane>
+          <a-tab-pane key="page" tab="页面设置">
+            <props-table
+              :props="pageState.props"
+              @change="handlePageChange"
+            ></props-table>
+          </a-tab-pane>
         </a-tabs>
       </a-layout-sider>
     </a-layout>
@@ -71,7 +81,7 @@ import LText from '../components/LText.vue'
 import LImage from '../components/LImage.vue'
 import ComponentsList from '../components/ComponentsList.vue'
 import EditWrapper from '../components/EditWrapper.vue'
-// import PropsTable from '../components/PropsTable.vue'
+import PropsTable from '../components/PropsTable.vue'
 // import PropsTable from '../components/PropsTable'
 import EditGroup from '../components/EditGroup.vue'
 import LayerList from '../components/LayerList.vue'
@@ -86,12 +96,13 @@ export default defineComponent({
     LImage,
     ComponentsList,
     EditWrapper,
-    // PropsTable,
+    PropsTable,
     EditGroup,
     LayerList,
   },
   setup() {
     const store = useStore<GlobalDataProps>()
+    const pageState = computed(() => store.state.editor.page)
     const components = computed(() => store.state.editor.components)
     const currentElement = computed<ComponentData | null>(
       () => store.getters.getCurrentElement
@@ -109,6 +120,11 @@ export default defineComponent({
       console.log('event', e)
       store.commit('updateComponent', e)
     }
+    const handlePageChange = (e: string) => {
+      console.log('event', e)
+      store.commit('updatePage', e)
+    }
+
     return {
       components,
       defaultTextTemplates,
@@ -118,6 +134,8 @@ export default defineComponent({
       handleChange,
       activePanel,
       currentId,
+      pageState,
+      handlePageChange,
     }
   },
 })

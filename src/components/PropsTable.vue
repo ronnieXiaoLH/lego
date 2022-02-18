@@ -33,6 +33,7 @@ import { mapPropsToForms } from '@/propsMap'
 import RenderVnode from '../components/renderVnode'
 import ColorPicker from '../components/ColorPicker.vue'
 import ImageProcesser from '../components/ImageProcesser.vue'
+import BackgroundProcesser from '../components/BackgroundProcesser.vue'
 
 interface FormProps {
   component: string
@@ -52,6 +53,7 @@ export default defineComponent({
     RenderVnode,
     ColorPicker,
     ImageProcesser,
+    BackgroundProcesser,
   },
   props: {
     props: {

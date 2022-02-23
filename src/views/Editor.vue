@@ -13,15 +13,23 @@
       <a-layout style="padding: 0 24px 24px">
         <a-layout-content class="preview-container">
           <p>画布区域</p>
-          <div class="preview-list" id="canvas-area" :style="pageState.props">
-            <div v-for="component in components" :key="component.id">
+          <div class="preview-list" id="canvas-area">
+            <div
+              class="body-container"
+              :style="pageState.props"
+              v-for="component in components"
+              :key="component.id"
+            >
               <edit-wrapper
                 v-if="!component.isHidden"
                 @setActive="setActive"
                 :id="component.id"
+                :props="component.props"
                 :active="component.id === (currentElement && currentElement.id)"
+                @update-position="handlePositionUpdate"
               >
                 <component
+                  class="position-static"
                   :is="component.name"
                   v-bind="component.props"
                   :isEditing="true"
@@ -87,6 +95,7 @@ import EditGroup from '../components/EditGroup.vue'
 import LayerList from '../components/LayerList.vue'
 import { ComponentData } from '../store/editor'
 import { defaultTextTemplates } from '../defaultTemplates'
+import { forEach, pickBy } from 'lodash-es'
 
 export type TabType = 'component' | 'layer' | 'page'
 
@@ -124,6 +133,17 @@ export default defineComponent({
       console.log('event', e)
       store.commit('updatePage', e)
     }
+    const handlePositionUpdate = (data: {
+      left: number
+      top: number
+      id: string
+    }) => {
+      const { id } = data
+      const updateData = pickBy(data, (v, k) => k !== id)
+      forEach(updateData, (v, key) => {
+        store.commit('updateComponent', { key, value: v + 'px', id })
+      })
+    }
 
     return {
       components,
@@ -136,6 +156,7 @@ export default defineComponent({
       currentId,
       pageState,
       handlePageChange,
+      handlePositionUpdate,
     }
   },
 })

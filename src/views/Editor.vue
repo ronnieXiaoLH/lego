@@ -13,28 +13,28 @@
       <a-layout style="padding: 0 24px 24px">
         <a-layout-content class="preview-container">
           <p>画布区域</p>
+          <history-area></history-area>
           <div class="preview-list" id="canvas-area">
-            <div
-              class="body-container"
-              :style="pageState.props"
-              v-for="component in components"
-              :key="component.id"
-            >
-              <edit-wrapper
-                v-if="!component.isHidden"
-                @setActive="setActive"
-                :id="component.id"
-                :props="component.props"
-                :active="component.id === (currentElement && currentElement.id)"
-                @update-position="handlePositionUpdate"
-              >
-                <component
-                  class="position-static"
-                  :is="component.name"
-                  v-bind="component.props"
-                  :isEditing="true"
-                />
-              </edit-wrapper>
+            <div class="body-container" :style="pageState.props">
+              <div v-for="component in components" :key="component.id">
+                <edit-wrapper
+                  v-if="!component.isHidden"
+                  @setActive="setActive"
+                  :id="component.id"
+                  :props="component.props"
+                  :active="
+                    component.id === (currentElement && currentElement.id)
+                  "
+                  @update-position="handlePositionUpdate"
+                >
+                  <component
+                    class="position-static"
+                    :is="component.name"
+                    v-bind="component.props"
+                    :isEditing="true"
+                  />
+                </edit-wrapper>
+              </div>
             </div>
           </div>
         </a-layout-content>
@@ -94,8 +94,10 @@ import PropsTable from '../components/PropsTable.vue'
 import EditGroup from '../components/EditGroup.vue'
 import LayerList from '../components/LayerList.vue'
 import { ComponentData } from '../store/editor'
-import { defaultTextTemplates } from '../defaultTemplates'
-import { forEach, pickBy } from 'lodash-es'
+import defaultTextTemplates from '../defaultTemplates'
+import { pickBy } from 'lodash-es'
+import initHotKeys from '../plugins/hotKeys'
+import HistoryArea from './editor/HistoryArea.vue'
 
 export type TabType = 'component' | 'layer' | 'page'
 
@@ -108,8 +110,10 @@ export default defineComponent({
     PropsTable,
     EditGroup,
     LayerList,
+    HistoryArea,
   },
   setup() {
+    initHotKeys()
     const store = useStore<GlobalDataProps>()
     const pageState = computed(() => store.state.editor.page)
     const components = computed(() => store.state.editor.components)
@@ -139,10 +143,11 @@ export default defineComponent({
       id: string
     }) => {
       const { id } = data
-      const updateData = pickBy(data, (v, k) => k !== id)
-      forEach(updateData, (v, key) => {
-        store.commit('updateComponent', { key, value: v + 'px', id })
-      })
+      const updateData = pickBy(data, (v, k) => k !== 'id')
+      console.log(updateData)
+      const keysArr = Object.keys(updateData)
+      const valuesArr = Object.values(updateData).map((value) => value + 'px')
+      store.commit('updateComponent', { key: keysArr, value: valuesArr, id })
     }
 
     return {
@@ -185,7 +190,7 @@ export default defineComponent({
 .preview-container {
   padding: 24px;
   margin: 0;
-  min-height: 90vh;
+  min-height: 90vh !important;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -219,11 +224,11 @@ export default defineComponent({
 .sidebar-container {
   padding: 20px;
 }
-.body-container {
+/* .body-container {
   width: 100%;
   height: 100%;
   background-size: cover;
-}
+} */
 .page-settings {
   padding: 16px;
 }

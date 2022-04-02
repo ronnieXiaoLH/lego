@@ -1,4 +1,6 @@
-export const defaultTextTemplates = [
+import { textDefaultProps } from './defaultProps'
+
+const defaultTextTemplates = [
   {
     text: '大标题',
     fontSize: '30px',
@@ -32,3 +34,8 @@ export const defaultTextTemplates = [
     textAlign: 'center',
   },
 ]
+
+export default defaultTextTemplates.map((template) => ({
+  ...textDefaultProps,
+  ...template,
+}))

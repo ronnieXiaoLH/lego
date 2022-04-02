@@ -81,7 +81,6 @@ export default defineComponent({
       }
     }
     const startMove = (e: MouseEvent) => {
-      isMoving = true
       const currentElement = editWrapper.value
       if (currentElement) {
         const { left, top } = currentElement.getBoundingClientRect()
@@ -90,6 +89,7 @@ export default defineComponent({
         console.log(gap)
       }
       const handleMove = (e: MouseEvent) => {
+        isMoving = true
         const { left, top } = calculatePositionMove(e)
         console.log(left, top)
         if (currentElement) {

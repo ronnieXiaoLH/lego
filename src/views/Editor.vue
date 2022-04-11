@@ -98,6 +98,7 @@ import defaultTextTemplates from '../defaultTemplates'
 import { pickBy } from 'lodash-es'
 import initHotKeys from '../plugins/hotKeys'
 import HistoryArea from './editor/HistoryArea.vue'
+import initContextMenu from '@/plugins/contextMenu'
 
 export type TabType = 'component' | 'layer' | 'page'
 
@@ -113,6 +114,7 @@ export default defineComponent({
     HistoryArea,
   },
   setup() {
+    initContextMenu()
     initHotKeys()
     const store = useStore<GlobalDataProps>()
     const pageState = computed(() => store.state.editor.page)

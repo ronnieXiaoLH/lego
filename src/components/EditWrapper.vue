@@ -1,6 +1,7 @@
 <template>
   <div
     class="edit-wrapper"
+    :data-component-id="id"
     :style="styles"
     ref="editWrapper"
     @click="onItemClick(id)"

@@ -8,6 +8,13 @@ module.exports = {
           '^/imooc': '',
         },
       },
+      '/api': {
+        target: 'https://api.imooc-lego.com/api/',
+        changeOrigin: true,
+        pathRewrite: {
+          '^/api': '',
+        },
+      },
     },
   },
 }

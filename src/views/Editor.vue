@@ -1,6 +1,48 @@
 <template>
   <div class="editor-container">
     <a-layout>
+      <a-layout-header class="header">
+        <div class="page-title">
+          <router-link to="/">
+            <img
+              alt="Vue logo"
+              src="../assets/logo-simple.png"
+              class="logo-img"
+            />
+          </router-link>
+          <input-edit :value="pageState.title" @change="titleChange">
+            <h4>{{ pageState.title }}</h4>
+          </input-edit>
+        </div>
+        <a-menu
+          :selectable="false"
+          theme="dark"
+          mode="horizontal"
+          :style="{ lineHeight: '64px' }"
+        >
+          <a-menu-item key="1">
+            <a-button type="primary" @click="previewWork">预览和设置</a-button>
+          </a-menu-item>
+          <a-menu-item key="2">
+            <a-button type="primary" @click="saveWork(true)" :loading="isSaving"
+              >保存</a-button
+            >
+          </a-menu-item>
+          <a-menu-item key="3">
+            <a-button
+              type="primary"
+              @click="publishWork"
+              :loading="isPublishing"
+              >发布</a-button
+            >
+          </a-menu-item>
+          <a-menu-item key="4">
+            <user-profile :user="userInfo" :smMode="true"></user-profile>
+          </a-menu-item>
+        </a-menu>
+      </a-layout-header>
+    </a-layout>
+    <a-layout>
       <a-layout-sider width="300" style="background: #fff">
         <div class="sidebar-container">
           组件列表
@@ -93,12 +135,16 @@ import PropsTable from '../components/PropsTable.vue'
 // import PropsTable from '../components/PropsTable'
 import EditGroup from '../components/EditGroup.vue'
 import LayerList from '../components/LayerList.vue'
+import InputEdit from '../components/InputEdit.vue'
+import UserProfile from '../components/UserProfile.vue'
 import { ComponentData } from '../store/editor'
 import defaultTextTemplates from '../defaultTemplates'
 import { pickBy } from 'lodash-es'
 import initHotKeys from '../plugins/hotKeys'
 import HistoryArea from './editor/HistoryArea.vue'
 import initContextMenu from '@/plugins/contextMenu'
+import { useRoute } from 'vue-router'
+import useSaveWork from '../hooks/useSaveWork'
 
 export type TabType = 'component' | 'layer' | 'page'
 
@@ -112,11 +158,15 @@ export default defineComponent({
     EditGroup,
     LayerList,
     HistoryArea,
+    InputEdit,
+    UserProfile,
   },
   setup() {
     initContextMenu()
     initHotKeys()
+    const { isSaving, saveWork } = useSaveWork()
     const store = useStore<GlobalDataProps>()
+    const route = useRoute()
     const pageState = computed(() => store.state.editor.page)
     const components = computed(() => store.state.editor.components)
     const currentElement = computed<ComponentData | null>(
@@ -124,6 +174,23 @@ export default defineComponent({
     )
     const currentId = computed(() => store.state.editor.currentElement)
     const activePanel = ref<TabType>('component')
+
+    const isPublishing = computed(() =>
+      store.getters.isOpLoading('publishWork')
+    )
+    const userInfo = computed(() => store.state.user)
+
+    const workId = route.params.id
+    if (workId) {
+      store.dispatch('fetchWork', { urlParams: { id: workId } })
+    }
+    const previewWork = () => {
+      console.log('previewWork')
+    }
+
+    const publishWork = () => {
+      console.log('publishWork')
+    }
 
     const addItem = (component: ComponentData) => {
       store.commit('addComponent', component)
@@ -151,6 +218,13 @@ export default defineComponent({
       const valuesArr = Object.values(updateData).map((value) => value + 'px')
       store.commit('updateComponent', { key: keysArr, value: valuesArr, id })
     }
+    const titleChange = (newValue: string) => {
+      store.commit('updatePage', {
+        key: 'title',
+        value: newValue,
+        isRoot: true,
+      })
+    }
 
     return {
       components,
@@ -164,6 +238,13 @@ export default defineComponent({
       pageState,
       handlePageChange,
       handlePositionUpdate,
+      titleChange,
+      isSaving,
+      isPublishing,
+      userInfo,
+      previewWork,
+      saveWork,
+      publishWork,
     }
   },
 })

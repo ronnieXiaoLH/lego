@@ -116,8 +116,10 @@ export default defineComponent({
       loginForm.value?.validate().then(() => {
         store
           .dispatch('loginAndFetchUser', {
-            phoneNumber: form.cellphone,
-            veriCode: form.verifyCode,
+            data: {
+              phoneNumber: form.cellphone,
+              veriCode: form.verifyCode,
+            },
           })
           .then((res) => {
             opName.value = ''

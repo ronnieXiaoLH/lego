@@ -1,4 +1,4 @@
-import { Module } from 'vuex'
+import { Module, Mutation } from 'vuex'
 import { v4 as uuidv4 } from 'uuid'
 import { message } from 'ant-design-vue'
 import store, { GlobalDataProps } from './index'
@@ -9,7 +9,8 @@ import {
   textDefaultProps,
 } from '@/defaultProps'
 import { cloneDeep } from 'lodash-es'
-import { insertAt } from '@/helper'
+import { actionWrapper, insertAt } from '@/helper'
+import { RespWorkData } from './respTypes'
 
 const modifyHistory = (
   state: EditorProps,
@@ -103,6 +104,8 @@ export interface EditorProps {
   cachedOldValue: any
   // 保存的做大历史记录数
   maxHistoryNumber: number
+  // 数据是否有修改
+  isDirty: boolean
 }
 
 export interface PageProps {
@@ -116,8 +119,11 @@ export interface PageProps {
 export type allFormProps = PageProps & AllComponentProps
 
 export interface PageData {
+  id?: string
   props: PageProps
   title: string
+  desc?: string
+  coverImg?: string
 }
 
 export interface ComponentData {
@@ -200,6 +206,14 @@ export interface UpdateComponentData {
   isRoot?: boolean
 }
 
+// 对改变编辑作品数据的 mutation 设置 isDirty 为 true，表示作品数据有更新，用于自动保存作品数据
+const setDirtyWrapper = (callback: Mutation<EditorProps>) => {
+  return (state: EditorProps, payload: any) => {
+    state.isDirty = true
+    callback(state, payload)
+  }
+}
+
 const editor: Module<EditorProps, GlobalDataProps> = {
   state: {
     components: testComponents,
@@ -212,9 +226,10 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     historyIndex: -1,
     cachedOldValue: null,
     maxHistoryNumber: 5,
+    isDirty: false,
   },
   mutations: {
-    addComponent(state, componentData: ComponentData) {
+    addComponent: setDirtyWrapper((state, componentData: ComponentData) => {
       componentData.layerName = '图层' + (state.components.length + 1)
       state.components.push(componentData)
       pushHistory(state, {
@@ -223,44 +238,50 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         type: 'add',
         data: cloneDeep(componentData),
       })
-    },
+    }),
     setActive(state, currentId: string) {
       state.currentElement = currentId
     },
-    updateComponent(state, { key, value, id, isRoot }: UpdateComponentData) {
-      const updatedComponent = state.components.find(
-        (component) => component.id === (id || state.currentElement)
-      )
-      if (updatedComponent) {
-        if (isRoot) {
-          // eslint-disable-next-line
-          ;(updatedComponent as any)[key as string] = value
-        } else {
-          const oldValue =
-            Array.isArray(key) && Array.isArray(value)
-              ? key.map((keyName) => updatedComponent.props[keyName])
-              : updatedComponent.props[key as keyof AllComponentProps]
-          if (!state.cachedOldValue) {
-            state.cachedOldValue = oldValue
-          }
-          pushModifyHistoryDebounce(
-            state,
-            { key, value, id },
-            state.cachedOldValue
-          )
-          // 避免一次修改多个 key, value 的时候(比如拖动)，会产生多条历史记录
-          if (Array.isArray(key) && Array.isArray(value)) {
-            key.forEach((keyName, index) => {
-              updatedComponent.props[keyName] = value[index]
-            })
-          } else if (typeof key === 'string' && typeof value === 'string') {
-            updatedComponent.props[key] = value
+    updateComponent: setDirtyWrapper(
+      (state, { key, value, id, isRoot }: UpdateComponentData) => {
+        const updatedComponent = state.components.find(
+          (component) => component.id === (id || state.currentElement)
+        )
+        if (updatedComponent) {
+          if (isRoot) {
+            // eslint-disable-next-line
+            ;(updatedComponent as any)[key as string] = value
+          } else {
+            const oldValue =
+              Array.isArray(key) && Array.isArray(value)
+                ? key.map((keyName) => updatedComponent.props[keyName])
+                : updatedComponent.props[key as keyof AllComponentProps]
+            if (!state.cachedOldValue) {
+              state.cachedOldValue = oldValue
+            }
+            pushModifyHistoryDebounce(
+              state,
+              { key, value, id },
+              state.cachedOldValue
+            )
+            // 避免一次修改多个 key, value 的时候(比如拖动)，会产生多条历史记录
+            if (Array.isArray(key) && Array.isArray(value)) {
+              key.forEach((keyName, index) => {
+                updatedComponent.props[keyName] = value[index]
+              })
+            } else if (typeof key === 'string' && typeof value === 'string') {
+              updatedComponent.props[key] = value
+            }
           }
         }
       }
-    },
-    updatePage(state, { key, value }) {
-      state.page.props[key as keyof PageProps] = value
+    ),
+    updatePage(state, { key, value, isRoot = false }) {
+      if (isRoot) {
+        state.page[key as keyof PageData] = value
+      } else {
+        state.page.props[key as keyof PageProps] = value
+      }
     },
     copyComponent(state, id) {
       const currentElement = store.getters.getElement(id) as ComponentData
@@ -271,7 +292,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         state.copiedComponent = null
       }
     },
-    pasteCopiedComponent(state) {
+    pasteCopiedComponent: setDirtyWrapper((state) => {
       if (!state.copiedComponent) return
       const cloneData = cloneDeep(state.copiedComponent)
       cloneData.id = uuidv4()
@@ -284,8 +305,8 @@ const editor: Module<EditorProps, GlobalDataProps> = {
         type: 'add',
         data: cloneDeep(cloneData),
       })
-    },
-    deleteComponent(state, id) {
+    }),
+    deleteComponent: setDirtyWrapper((state, id) => {
       const currentElement = store.getters.getElement(id) as ComponentData
       if (currentElement) {
         state.components = state.components.filter(
@@ -303,59 +324,63 @@ const editor: Module<EditorProps, GlobalDataProps> = {
           index,
         })
       }
-    },
-    moveComponent(
-      state,
-      data: { direction: MoveDirection; amount: number; id: string }
-    ) {
-      const currentElement = store.getters.getElement(data.id) as ComponentData
-      if (currentElement) {
-        const oldTop = parseInt(currentElement.props.top || '0')
-        const oldLeft = parseInt(currentElement.props.left || '0')
-        const { direction, amount } = data
-        switch (direction) {
-          case 'Up': {
-            const newValue = oldTop - amount + 'px'
-            store.commit('updateComponent', {
-              key: 'top',
-              value: newValue,
-              id: data.id,
-            })
-            break
-          }
-          case 'Down': {
-            const newValue = oldTop + amount + 'px'
-            store.commit('updateComponent', {
-              key: 'top',
-              value: newValue,
-              id: data.id,
-            })
-            break
-          }
-          case 'Left': {
-            const newValue = oldLeft - amount + 'px'
-            store.commit('updateComponent', {
-              key: 'left',
-              value: newValue,
-              id: data.id,
-            })
-            break
-          }
-          case 'Right': {
-            const newValue = oldLeft + amount + 'px'
-            store.commit('updateComponent', {
-              key: 'left',
-              value: newValue,
-              id: data.id,
-            })
-            break
-          }
+    }),
+    moveComponent: setDirtyWrapper(
+      (
+        state,
+        data: { direction: MoveDirection; amount: number; id: string }
+      ) => {
+        const currentElement = store.getters.getElement(
+          data.id
+        ) as ComponentData
+        if (currentElement) {
+          const oldTop = parseInt(currentElement.props.top || '0')
+          const oldLeft = parseInt(currentElement.props.left || '0')
+          const { direction, amount } = data
+          switch (direction) {
+            case 'Up': {
+              const newValue = oldTop - amount + 'px'
+              store.commit('updateComponent', {
+                key: 'top',
+                value: newValue,
+                id: data.id,
+              })
+              break
+            }
+            case 'Down': {
+              const newValue = oldTop + amount + 'px'
+              store.commit('updateComponent', {
+                key: 'top',
+                value: newValue,
+                id: data.id,
+              })
+              break
+            }
+            case 'Left': {
+              const newValue = oldLeft - amount + 'px'
+              store.commit('updateComponent', {
+                key: 'left',
+                value: newValue,
+                id: data.id,
+              })
+              break
+            }
+            case 'Right': {
+              const newValue = oldLeft + amount + 'px'
+              store.commit('updateComponent', {
+                key: 'left',
+                value: newValue,
+                id: data.id,
+              })
+              break
+            }
 
-          default:
-            break
+            default:
+              break
+          }
         }
       }
-    },
+    ),
     undo(state) {
       // never undo before
       if (state.historyIndex === -1) {
@@ -414,6 +439,25 @@ const editor: Module<EditorProps, GlobalDataProps> = {
       }
       state.historyIndex++
     },
+    fetchWork(state, { data }: RespWorkData) {
+      console.log('data', data)
+      const { content, ...rest } = data
+      const { components, props } = content
+      state.components = components
+      state.page.props = props as PageProps
+      state.page.title = rest.title
+      state.page.desc = rest.desc
+      state.page.coverImg = rest.coverImg
+      state.page.id = rest.id
+    },
+    saveWork(state) {
+      // 作品数据保存成功后，重置 isDirty
+      state.isDirty = false
+    },
+  },
+  actions: {
+    fetchWork: actionWrapper('/api/works/:id', 'fetchWork'),
+    saveWork: actionWrapper('/api/works/:id', 'saveWork', { method: 'patch' }),
   },
   getters: {
     getCurrentElement: (state) => {

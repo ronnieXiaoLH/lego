@@ -1,5 +1,6 @@
-import axios, { AxiosRequestConfig } from 'axios'
-import { ActionContext, Module } from 'vuex'
+import { actionWrapper } from '@/helper'
+import axios from 'axios'
+import { Module } from 'vuex'
 import { GlobalDataProps } from './index'
 import { RespData } from './respTypes'
 
@@ -21,21 +22,6 @@ export interface UserProps {
   isLogin: boolean
   token?: string
   data?: UserDataProps
-}
-
-const actionWrapper = (
-  url: string,
-  commitName: string,
-  config: AxiosRequestConfig = { method: 'get' }
-) => {
-  return async (context: ActionContext<any, any>, payload: any) => {
-    const newConfig = { ...config, data: payload, opName: commitName }
-    const { data } = await axios(url, newConfig)
-    if (data.errno === 0) {
-      context.commit(commitName, data)
-      return data
-    }
-  }
 }
 
 const user: Module<UserProps, GlobalDataProps> = {

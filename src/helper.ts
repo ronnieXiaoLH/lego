@@ -1,4 +1,7 @@
 import { message } from 'ant-design-vue'
+import axios, { AxiosRequestConfig } from 'axios'
+import { compile } from 'path-to-regexp'
+import { ActionContext } from 'vuex'
 interface CheckCondition {
   format?: string[]
   // 使用多少 M 为单位
@@ -68,3 +71,31 @@ export const insertAt = (arr: any[], index: number, newItem: any) => {
 
 export const isValidCellphone = (cellphone: string) =>
   /^1[3-9]\d{9}$/.test(cellphone)
+
+interface ActionPayload {
+  urlParams?: { [key: string]: any }
+  data?: any
+}
+export const actionWrapper = (
+  url: string,
+  commitName: string,
+  config: AxiosRequestConfig = { method: 'get' }
+) => {
+  return async (
+    context: ActionContext<any, any>,
+    payload: ActionPayload = {}
+  ) => {
+    const { data, urlParams } = payload
+    console.log(urlParams)
+    if (urlParams) {
+      const toPath = compile(url, { encode: encodeURIComponent })
+      url = toPath(urlParams)
+    }
+    const newConfig = { ...config, data, opName: commitName }
+    const { data: resData } = await axios(url, newConfig)
+    if (resData.errno === 0) {
+      context.commit(commitName, resData)
+      return resData
+    }
+  }
+}

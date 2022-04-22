@@ -2,7 +2,9 @@
   <div class="template-list-component">
     <a-row :gutter="16">
       <a-col :span="6" v-for="item in list" :key="item.id" class="poster-item">
-        <router-link :to="{ name: 'template', params: { id: item.id } }">
+        <router-link
+          :to="type === 'work' ? `/editor/${item.id}` : `/template/${item.id}`"
+        >
           <a-card hoverable>
             <template v-slot:cover>
               <img :src="item.coverImg" v-if="item.coverImg" />
@@ -10,19 +12,31 @@
                 src="http://typescript-vue.oss-cn-beijing.aliyuncs.com/vue-marker/5f81cca3f3bf7a0e1ebaf885.png"
                 v-else
               />
+              <!-- <div class="blur-image">
+                <img :src="item.coverImg"  v-if="item.coverImg" />
+                <img src="http://typescript-vue.oss-cn-beijing.aliyuncs.com/vue-marker/5f81cca3f3bf7a0e1ebaf885.png"  v-else />
+              </div> -->
               <div class="hover-item">
-                <a-button size="large" type="primary">使用该模版创建</a-button>
+                <a-button size="large" type="primary">{{
+                  type === 'work' ? '编辑该作品' : '使用该模版创建'
+                }}</a-button>
               </div>
             </template>
             <a-card-meta :title="item.title">
               <template v-slot:description>
                 <div class="description-detail">
-                  <span>作者：{{ item.author }}</span>
-                  <span class="user-number">{{ item.copiedCount }}</span>
+                  <span v-if="item.user">作者：{{ item.user.nickName }}</span>
+                  <span class="user-number"
+                    ><UserOutlined /> {{ item.copiedCount }}</span
+                  >
                 </div>
               </template>
             </a-card-meta>
           </a-card>
+          <div class="tag-list">
+            <a-tag color="red" v-if="item.isHot"> HOT </a-tag>
+            <a-tag color="green" v-if="item.isNew"> NEW </a-tag>
+          </div>
         </router-link>
       </a-col>
     </a-row>
@@ -51,11 +65,30 @@ export default defineComponent({
 .poster-item .ant-card {
   border-radius: 12px;
 }
+.tag-list {
+  position: absolute;
+  top: -4px;
+  left: 6px;
+}
 .poster-item .ant-card-cover {
   height: 390px;
 }
 .poster-item .ant-card-cover > img {
   width: 100%;
+}
+.poster-item .blur-image {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+  padding-top: 15px;
+}
+.blur-image > img {
+  width: 70%;
+  text-align: center;
+  margin: 0 auto;
 }
 .poster-item .ant-card-hoverable {
   box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.1);
@@ -96,7 +129,7 @@ export default defineComponent({
 .poster-item .ant-card-cover img {
   transition: all ease-in 0.2s;
 }
-.poster-item .ant-card-cover .hover-item {
+.hover-item {
   position: absolute;
   left: 0;
   top: 0;

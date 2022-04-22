@@ -1,5 +1,29 @@
 <template>
   <div class="editor-container">
+    <a-drawer
+      title="设置面板"
+      placement="right"
+      width="400"
+      :closable="true"
+      v-model:visible="publishDialogIsShow"
+    >
+      <publish-form
+        :isSaving="isSaving"
+        :isPublishing="isPublishing"
+        @panel-close="publishDialogIsShow = false"
+        @trigger-publish="publishWork"
+        @trigger-save="saveWork(true)"
+      >
+      </publish-form>
+    </a-drawer>
+    <a-modal
+      title="发布成功"
+      v-model:visible="showModal"
+      width="700px"
+      :footer="null"
+    >
+      <channel-form />
+    </a-modal>
     <a-layout>
       <a-layout-header class="header">
         <div class="page-title">
@@ -56,7 +80,11 @@
         <a-layout-content class="preview-container">
           <p>画布区域</p>
           <history-area></history-area>
-          <div class="preview-list" id="canvas-area">
+          <div
+            class="preview-list"
+            :class="{ 'canvas-fix': canvasFix }"
+            id="canvas-area"
+          >
             <div class="body-container" :style="pageState.props">
               <div v-for="component in components" :key="component.id">
                 <edit-wrapper
@@ -142,9 +170,12 @@ import defaultTextTemplates from '../defaultTemplates'
 import { pickBy } from 'lodash-es'
 import initHotKeys from '../plugins/hotKeys'
 import HistoryArea from './editor/HistoryArea.vue'
+import PublishForm from './PublishForm.vue'
+import ChannelForm from './ChannelForm.vue'
 import initContextMenu from '@/plugins/contextMenu'
 import { useRoute } from 'vue-router'
 import useSaveWork from '../hooks/useSaveWork'
+import usePulishWork from '../hooks/usePublishWork'
 
 export type TabType = 'component' | 'layer' | 'page'
 
@@ -160,11 +191,14 @@ export default defineComponent({
     HistoryArea,
     InputEdit,
     UserProfile,
+    PublishForm,
+    ChannelForm,
   },
   setup() {
     initContextMenu()
     initHotKeys()
     const { isSaving, saveWork } = useSaveWork()
+    const { isPublishing, canvasFix, publishWork, showModal } = usePulishWork()
     const store = useStore<GlobalDataProps>()
     const route = useRoute()
     const pageState = computed(() => store.state.editor.page)
@@ -174,10 +208,8 @@ export default defineComponent({
     )
     const currentId = computed(() => store.state.editor.currentElement)
     const activePanel = ref<TabType>('component')
+    const publishDialogIsShow = ref(false)
 
-    const isPublishing = computed(() =>
-      store.getters.isOpLoading('publishWork')
-    )
     const userInfo = computed(() => store.state.user)
 
     const workId = route.params.id
@@ -186,10 +218,6 @@ export default defineComponent({
     }
     const previewWork = () => {
       console.log('previewWork')
-    }
-
-    const publishWork = () => {
-      console.log('publishWork')
     }
 
     const addItem = (component: ComponentData) => {
@@ -241,10 +269,13 @@ export default defineComponent({
       titleChange,
       isSaving,
       isPublishing,
+      publishDialogIsShow,
+      showModal,
       userInfo,
       previewWork,
       saveWork,
       publishWork,
+      canvasFix,
     }
   },
 })

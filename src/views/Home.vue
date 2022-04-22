@@ -1,6 +1,18 @@
 <template>
   <div class="content-container">
-    <template-list :list="testData"></template-list>
+    <a-row>
+      <template-list :list="testData"></template-list>
+    </a-row>
+    <a-row type="flex" justify="center">
+      <a-button
+        v-if="!isLastPage"
+        type="primary"
+        size="large"
+        :loading="isLoading"
+        @click="loadMorePage"
+        >加载更多</a-button
+      >
+    </a-row>
   </div>
 </template>
 
@@ -9,8 +21,7 @@ import { computed, defineComponent, onMounted } from 'vue'
 import { useStore } from 'vuex'
 import { GlobalDataProps } from '../store/index'
 import TemplateList from '../components/TemplateList.vue'
-// import axios from 'axios'
-// import { message } from 'ant-design-vue'
+import useLoadMore from '../hooks/useLoadMore'
 export default defineComponent({
   components: {
     TemplateList,
@@ -18,20 +29,34 @@ export default defineComponent({
   setup() {
     const store = useStore<GlobalDataProps>()
     const testData = computed(() => store.state.templates.data)
-    // const currentUser = computed(() => store.state.user)
+    const total = computed(() => store.state.templates.totalTemplates)
+    const { loadMorePage, isLastPage } = useLoadMore('fetchTemplates', total, {
+      pageIndex: 0,
+      pageSize: 4,
+    })
+    const isLoading = computed(() =>
+      store.getters.isOpLoading('fetchTemplates')
+    )
     onMounted(() => {
-      store.dispatch('fetchTemplates')
-      // if (!currentUser.value.isLogin && currentUser.value.token) {
-      //   axios.defaults.headers.common.Authorization = `Bearer ${currentUser.value.token}`
-      //   store.dispatch('fetchCurrentUser').catch(() => {
-      //     message.error('登录状态已过期，请重新登录')
-      //     localStorage.setItem('token', '')
-      //     delete axios.defaults.headers.common.Authorization
-      //   })
-      // }
+      store.dispatch('fetchTemplates', {
+        searchParams: { pageIndex: 0, pageSize: 4 },
+      })
+      window.addEventListener('scroll', () => {
+        if (isLoading.value) return
+        // get body height
+        const totalPageHeight = document.body.scrollHeight
+        // get scrollPoint
+        const scrollPoint = window.scrollY + window.innerHeight
+        if (scrollPoint >= totalPageHeight - 2 && !isLastPage.value) {
+          loadMorePage()
+        }
+      })
     })
     return {
       testData,
+      loadMorePage,
+      isLastPage,
+      isLoading,
     }
   },
 })

@@ -1,9 +1,11 @@
+import { ActionPayload } from '@/helper'
 import { ComponentData, PageData, PageProps } from './editor'
 
 export interface RespData<T> {
   errno: number
   data: T
   message?: string
+  payload?: ActionPayload
 }
 
 export interface ListData<T> {
@@ -21,3 +23,9 @@ export interface WorkData extends Omit<PageData, 'props'> {
 }
 
 export type RespWorkData = RespData<WorkData>
+
+export interface UplodaData {
+  urls: string[]
+}
+
+export type RespUploadData = RespData<UplodaData>

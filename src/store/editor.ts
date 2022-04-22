@@ -10,7 +10,7 @@ import {
 } from '@/defaultProps'
 import { cloneDeep } from 'lodash-es'
 import { actionWrapper, insertAt } from '@/helper'
-import { RespWorkData } from './respTypes'
+import { RespData, RespListData, RespWorkData } from './respTypes'
 
 const modifyHistory = (
   state: EditorProps,
@@ -36,7 +36,7 @@ const modifyHistory = (
 }
 
 const debounceChange = (callback: (...args: any[]) => void, delay = 1000) => {
-  let timer = 0
+  let timer: any
   return (...args: any[]) => {
     if (timer) clearTimeout(timer)
     timer = setTimeout(() => {
@@ -88,6 +88,13 @@ export interface HistoryProps {
   index?: number
 }
 
+export interface ChannelProps {
+  id: string
+  name: string
+  workId: number
+  status: number
+}
+
 export interface EditorProps {
   // 中间编辑器渲染的数组
   components: ComponentData[]
@@ -106,6 +113,7 @@ export interface EditorProps {
   maxHistoryNumber: number
   // 数据是否有修改
   isDirty: boolean
+  channels: ChannelProps[]
 }
 
 export interface PageProps {
@@ -124,6 +132,20 @@ export interface PageData {
   title: string
   desc?: string
   coverImg?: string
+  uuid?: string
+  setting?: { [key: string]: any }
+  isTemplate?: boolean
+  isHot?: boolean
+  isNew?: boolean
+  author?: string
+  copiedCount?: number
+  status?: number
+  user?: {
+    gender: string
+    nickName: string
+    picture: string
+    userName: string
+  }
 }
 
 export interface ComponentData {
@@ -227,6 +249,7 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     cachedOldValue: null,
     maxHistoryNumber: 5,
     isDirty: false,
+    channels: [],
   },
   mutations: {
     addComponent: setDirtyWrapper((state, componentData: ComponentData) => {
@@ -278,7 +301,8 @@ const editor: Module<EditorProps, GlobalDataProps> = {
     ),
     updatePage(state, { key, value, isRoot = false }) {
       if (isRoot) {
-        state.page[key as keyof PageData] = value
+        const pageData = state.page as { [key: string]: any }
+        pageData[key] = value
       } else {
         state.page.props[key as keyof PageProps] = value
       }
@@ -449,15 +473,43 @@ const editor: Module<EditorProps, GlobalDataProps> = {
       state.page.desc = rest.desc
       state.page.coverImg = rest.coverImg
       state.page.id = rest.id
+      state.page.uuid = rest.uuid
     },
     saveWork(state) {
       // 作品数据保存成功后，重置 isDirty
       state.isDirty = false
     },
+    fetchChannel(state, { data }: RespListData<ChannelProps>) {
+      state.channels = data.list
+    },
+    createChannel(state, { data }: RespData<ChannelProps>) {
+      state.channels = [...state.channels, data]
+    },
+    deleteChannel(state, { payload }: RespData<any>) {
+      if (payload && payload.urlParams) {
+        const { urlParams } = payload
+        state.channels = state.channels.filter(
+          (channel) => channel.id !== urlParams.id
+        )
+      }
+    },
   },
   actions: {
     fetchWork: actionWrapper('/api/works/:id', 'fetchWork'),
     saveWork: actionWrapper('/api/works/:id', 'saveWork', { method: 'patch' }),
+    publishWork: actionWrapper('/api/works/publish/:id', 'publishWork', {
+      method: 'post',
+    }),
+    fetchChannel: actionWrapper(
+      '/api/channel/getWorkChannels/:id',
+      'fetchChannel'
+    ),
+    createChannel: actionWrapper('/api/channel', 'createChannel', {
+      method: 'post',
+    }),
+    deleteChannel: actionWrapper('/api/channel/:id', 'deleteChannel', {
+      method: 'delete',
+    }),
   },
   getters: {
     getCurrentElement: (state) => {

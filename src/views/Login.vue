@@ -137,7 +137,7 @@ export default defineComponent({
     const codeButtonDisable = computed(
       () => !isValidCellphone(form.cellphone) || counter.value !== 60
     )
-    let timer: number
+    let timer: any
     const startCounter = () => {
       counter.value--
       timer = setInterval(() => {

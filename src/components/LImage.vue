@@ -9,7 +9,7 @@
 
 <script lang="ts">
 import useComponentCommon from '@/hooks/useComponentCommon'
-import { defineComponent } from 'vue'
+import { defineComponent, ref } from 'vue'
 import {
   transformToComponentProps,
   imageDefaultProps,
@@ -22,15 +22,18 @@ export default defineComponent({
   props: {
     ...defaultProps,
   },
-  setup(props) {
+  attrs: {},
+  setup(props, { attrs }) {
     const { styleProps, handleClick } = useComponentCommon(
       props,
       imageStylePropsNames
     )
+    const src = ref(attrs.imageSrc)
 
     return {
       styleProps,
       handleClick,
+      src,
     }
   },
 })

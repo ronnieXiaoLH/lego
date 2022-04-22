@@ -4,7 +4,7 @@ import { computed, onMounted, onUnmounted } from 'vue'
 import { onBeforeRouteLeave, useRoute } from 'vue-router'
 import { useStore } from 'vuex'
 
-export default function useSaveWork() {
+export default function useSaveWork(disableSideEffects = false) {
   const store = useStore<GlobalDataProps>()
   const route = useRoute()
   const pageState = computed(() => store.state.editor.page)
@@ -14,9 +14,10 @@ export default function useSaveWork() {
 
   // 保存函数
   const saveWork = () => {
-    const { title, props } = pageState.value
+    const { title, props, coverImg } = pageState.value
     const payload = {
       title,
+      coverImg,
       content: {
         components: components.value,
         props,
@@ -29,34 +30,36 @@ export default function useSaveWork() {
     })
   }
 
-  // 自动保存
-  let timer: number
-  onMounted(() => {
-    timer = setInterval(() => {
-      isDirty.value && saveWork()
-    }, 5000)
-  })
-  onUnmounted(() => {
-    clearInterval(timer)
-  })
+  if (!disableSideEffects) {
+    // 自动保存
+    let timer: any
+    onMounted(() => {
+      timer = setInterval(() => {
+        isDirty.value && saveWork()
+      }, 5000)
+    })
+    onUnmounted(() => {
+      clearInterval(timer)
+    })
 
-  // 离开页面前提示
-  onBeforeRouteLeave((to, from, next) => {
-    if (isDirty.value) {
-      Modal.confirm({
-        title: '作品还未保存，是否保存？',
-        okText: '保存',
-        okType: 'primary',
-        cancelText: '不保存',
-        onOk: async () => {
-          await saveWork()
-          next()
-        },
-      })
-    } else {
-      next()
-    }
-  })
+    // 离开页面前提示
+    onBeforeRouteLeave((to, from, next) => {
+      if (isDirty.value) {
+        Modal.confirm({
+          title: '作品还未保存，是否保存？',
+          okText: '保存',
+          okType: 'primary',
+          cancelText: '不保存',
+          onOk: async () => {
+            await saveWork()
+            next()
+          },
+        })
+      } else {
+        next()
+      }
+    })
+  }
 
   return {
     isSaving,

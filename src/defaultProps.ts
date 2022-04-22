@@ -85,7 +85,7 @@ export const textDefaultProps: TextComponentProps = {
   ...commonDefaultProps,
 }
 export const imageDefaultProps: ImageComponentProps = {
-  src: 'test.url',
+  src: '',
   ...commonDefaultProps,
 }
 export const shapeDefaultProps: ShapeComponentProps = {

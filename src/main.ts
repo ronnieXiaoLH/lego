@@ -12,6 +12,8 @@ import 'xlh-lego-components/dist/bundle.css'
 // const baseBackendURL = 'http://182.92.168.192:8081'
 // axios.defaults.baseURL = `${baseBackendURL}/api`
 
+export const baseH5URL = 'https://h5.imooc-lego.com'
+
 export type ICustomAxiosConfig = AxiosRequestConfig & {
   opName?: string
 }

@@ -26,13 +26,18 @@ axios.interceptors.request.use((config: ICustomAxiosConfig) => {
 axios.interceptors.response.use(
   (resp) => {
     const { config } = resp
+    console.log('config', config)
     const newConfig = config as ICustomAxiosConfig
     store.commit('finishLoading', { opName: newConfig.opName })
-    if (resp.data?.errno !== 0) {
-      message.error(resp.data?.message)
-      return Promise.reject(resp)
+    if (resp.data?.errno) {
+      if (resp.data?.errno !== 0) {
+        message.error(resp.data?.message)
+        return Promise.reject(resp)
+      }
+      return resp
+    } else {
+      return resp
     }
-    return resp
   },
   (error) => {
     store.commit('finishLoading')

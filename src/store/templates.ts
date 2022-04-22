@@ -87,7 +87,7 @@ const templates: Module<TemplatesProps, GlobalDataProps> = {
     fetchTemplates: actionWrapper('/api/templates', 'fetchTemplates'),
   },
   getters: {
-    getTemplateById: (state) => (id: string) => {
+    getTemplateById: (state) => (id: number) => {
       return state.data.find((t) => t.id === id)
     },
   },

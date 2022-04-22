@@ -3,6 +3,7 @@ import axios, { AxiosRequestConfig } from 'axios'
 import html2canvas from 'html2canvas'
 import { compile } from 'path-to-regexp'
 import { ActionContext } from 'vuex'
+import { saveAs } from 'file-saver'
 import { RespUploadData } from './store/respTypes'
 interface CheckCondition {
   format?: string[]
@@ -174,4 +175,40 @@ export function copyToClipboard(text: string) {
   } finally {
     document.body.removeChild(textarea)
   }
+}
+
+export function downloadFile(src: string, fileName = 'default.png') {
+  // a 可以下载同源(本地)文件，对于不同源的文件是跳转
+  const link = document.createElement('a')
+  link.download = fileName
+  link.rel = 'noopener'
+  link.href = src
+  console.log('xx', link.origin)
+  if (link.origin !== location.origin) {
+    axios
+      .get(src, { responseType: 'blob' })
+      .then((res) => {
+        link.href = URL.createObjectURL(res.data)
+        setTimeout(() => {
+          link.dispatchEvent(new MouseEvent('click'))
+        })
+        setTimeout(() => {
+          URL.revokeObjectURL(link.href)
+        }, 1000 * 10)
+      })
+      .catch((error) => {
+        console.error(error)
+        // 跨域
+        link.target = '_blank'
+        link.href = src
+        link.dispatchEvent(new MouseEvent('click'))
+      })
+  } else {
+    link.dispatchEvent(new MouseEvent('click'))
+  }
+}
+
+export function downloadImage(url: string) {
+  const fileName = url.substring(url.lastIndexOf('/') + 1)
+  saveAs(url, fileName)
 }

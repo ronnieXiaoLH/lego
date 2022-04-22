@@ -127,7 +127,7 @@ export interface PageProps {
 export type allFormProps = PageProps & AllComponentProps
 
 export interface PageData {
-  id?: string
+  id?: number
   props: PageProps
   title: string
   desc?: string

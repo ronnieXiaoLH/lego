@@ -19,7 +19,7 @@
           <router-link to="/editor/1807">
             <a-button type="primary" size="large"> 使用模版 </a-button>
           </router-link>
-          <a-button size="large"> 下载图片海报 </a-button>
+          <a-button size="large" @click="download"> 下载图片海报 </a-button>
         </div>
       </a-col>
     </a-row>
@@ -27,6 +27,7 @@
 </template>
 
 <script lang="ts">
+import { downloadImage } from '@/helper'
 import { defineComponent, computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useStore } from 'vuex'
@@ -38,11 +39,15 @@ export default defineComponent({
     const store = useStore<GlobalDataProps>()
     const currentId = route.params.id as string
     const template = computed<TemplateProps>(() =>
-      store.getters.getTemplateById(currentId)
+      store.getters.getTemplateById(+currentId)
     )
+    const download = () => {
+      downloadImage(template.value.coverImg)
+    }
     return {
       route,
       template,
+      download,
     }
   },
 })
